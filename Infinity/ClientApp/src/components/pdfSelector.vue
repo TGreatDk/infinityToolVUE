@@ -44,19 +44,18 @@
     },
     methods: {
       combinePDF: function () {
-        axios.post('/api/pdf/combined', this.chosen).then(resp => {
-          var headers = resp.headers
-          var blob = new Blob([resp.data], { type: headers['content-type'] });
+        axios.post('/api/pdf/combined', this.chosen).then(function (response) {
+          var headers = response.headers;
+          var blob = new Blob([response.data], { type: headers['content-type'] });
 
           if (window.navigator.msSaveBlob) {
-            window.navigator.msSaveBlob(blob, 'Missionpack.pdf'); // IE doesnot understand download header
+            window.navigator.msSaveBlob(blob, 'export.pdf'); // IE doesnot understand download header
           } else {
             var link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link['download'] = "Missionpack.pdf";
+            link['download'] = "Export";
             link.click();
           }
-          console.log('resp', resp)
         })
       }
     },

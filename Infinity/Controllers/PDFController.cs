@@ -37,16 +37,8 @@ namespace Infinity.Controllers
 
         [HttpPost]
         [Route("Combined")]
-        public HttpResponseMessage Combine(List<PDF> pdfs)
+        public async Task<IActionResult> Combine(List<PDF> pdfs)
         {
-            string ret = "";
-            List<byte[]> sourceFiles = new List<byte[]>();
-            foreach (PDF pdf in pdfs)
-            {
-                ret += pdf.Name + ";";
-                sourceFiles.Add(System.IO.File.ReadAllBytes(pdf.FullPath));
-
-            }
             using (ByteArrayOutputStream baos = new ByteArrayOutputStream())
             {
                 PdfDocument doc = new PdfDocument(new PdfWriter(baos));
@@ -62,19 +54,25 @@ namespace Infinity.Controllers
                 merger.Close();
                 doc.Close();
 
-                using (MemoryStream ms = new MemoryStream(baos.ToArray()))
-                {
-                    using (FileStream file = new FileStream("p2.pdf", FileMode.Create))
-                        ms.CopyTo(file);
-                    var pushStreamContent = new PushStreamContent((outputstream, cotent, context) =>
-                    {
-                        ms.Position = 0;
-                        ms.CopyTo(outputstream);
-                        ms.Dispose();
-                        outputstream.Close();
-                    }, "application/pdf");
-                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = pushStreamContent };
-                }
+                MemoryStream ms = new MemoryStream(baos.ToArray());
+
+                //using (FileStream fs = new FileStream("p.pdf", FileMode.Create))
+                //    ms.CopyTo(fs);
+
+                //var pushStreamContent = new PushStreamContent((outputstream, cotent, context) =>
+                //{
+                //    baos.Position = 0;
+                //    baos.CopyTo(outputstream);
+                //    baos.Dispose();
+                //    outputstream.Close();
+                //}, "application/pdf");
+                    
+
+
+                return new FileStreamResult(new FileStream("p.pdf", FileMode.Open), "application/pdf");
+                //return File(ms, "application/pdf");
+                //return new ContentResult() { Content = s, ContentType = "text/plan", StatusCode = 200 };
+
             }
         }
     }
